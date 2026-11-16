@@ -1,0 +1,31 @@
+team_id,team,rank_runs_scored,rank_runs_allowed,rank_run_diff
+112,Chicago Cubs,1,12,3
+158,Milwaukee Brewers,2,4,1
+120,Washington Nationals,3,27,15
+119,Los Angeles Dodgers,4,1,2
+145,Chicago White Sox,5,15,9
+134,Pittsburgh Pirates,6,19,11
+115,Colorado Rockies,7,30,29
+144,Atlanta Braves,8,5,5
+109,Arizona Diamondbacks,9,17,14
+142,Minnesota Twins,9,25,23
+147,New York Yankees,9,2,4
+139,Tampa Bay Rays,12,6,6
+117,Houston Astros,13,24,19
+116,Detroit Tigers,14,7,8
+135,San Diego Padres,15,9,10
+138,St. Louis Cardinals,16,21,18
+110,Baltimore Orioles,17,19,17
+146,Miami Marlins,18,13,16
+143,Philadelphia Phillies,19,11,12
+121,New York Mets,20,18,19
+133,Athletics,20,29,30
+118,Kansas City Royals,22,26,27
+111,Boston Red Sox,23,3,7
+114,Cleveland Guardians,24,8,13
+140,Texas Rangers,25,14,21
+137,San Francisco Giants,26,23,25
+113,Cincinnati Reds,27,28,28
+136,Seattle Mariners,28,16,23
+108,Los Angeles Angels,29,22,26
+141,Toronto Blue Jays,30,10,21

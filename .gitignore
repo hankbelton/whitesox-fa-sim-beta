@@ -1,0 +1,13 @@
+# R session files
+.Rhistory
+.RData
+.Rproj.user/
+*.Rproj
+
+# Publishing records written by rsconnect (deploy history, no credentials)
+rsconnect/
+
+# Logs and OS files
+*.log
+.DS_Store
+Thumbs.db

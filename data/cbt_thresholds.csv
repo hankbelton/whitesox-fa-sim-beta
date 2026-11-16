@@ -1,0 +1,14 @@
+param,season,value,cba,text_on_page,read_on
+base_threshold,2022,2.3e+08,2022-26,2022: $230 million,2026-11-05
+base_threshold,2023,2.33e+08,2022-26,2023: $233 million,2026-11-05
+base_threshold,2024,2.37e+08,2022-26,2024: $237 million,2026-11-05
+base_threshold,2025,2.41e+08,2022-26,2025: $241 million,2026-11-05
+base_threshold,2026,2.44e+08,2022-26,2026: $244 million,2026-11-05
+base_rate_1,,0.2,2022-26,First year: 20 percent tax on all overages,2026-11-05
+base_rate_2,,0.3,2022-26,Second consecutive year: 30 percent,2026-11-05
+base_rate_3,,0.5,2022-26,Third consecutive year or more: 50 percent,2026-11-05
+surcharge_step,,2e+07,2022-26,surcharge threshold for clubs that exceed the base threshold by $20 million or more,2026-11-05
+surcharge_1,,0.12,2022-26,$20 million to $40 million: 12 percent surcharge,2026-11-05
+surcharge_2_first,,0.425,2022-26,$40 million to $60 million: 42.5 percent surcharge for first year,2026-11-05
+surcharge_2_repeat,,0.45,2022-26,$40 million to $60 million: ... 45 percent for each consecutive year after that,2026-11-05
+surcharge_3,,0.6,2022-26,$60 million or more: 60 percent surcharge,2026-11-05

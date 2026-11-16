@@ -1,0 +1,4 @@
+setting,version,mean_75_95,at_sox,at_88,sox_W_2027
+low,"calibrated to the market, mean over 84-92",4834265.95632523,4011045.95672953,5245068.06105459,79
+base,"calibrated to the market, mean over 84-92",5232240.20329757,3365393.92776957,6805886.0213855,79
+high,"calibrated to the market, mean over 84-92",5653624.45347547,3200869.61267874,7862157.30686097,79

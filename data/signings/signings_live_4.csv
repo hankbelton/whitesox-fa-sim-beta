@@ -1,0 +1,5 @@
+signing_live_id,mlbam_id,player,club,deal_type,date_reported,date_official,years,aav_nominal,in_class
+2026-27-005,623465,Evan Phillips,Braves,major_league,2026-11-12,"",3,11666667,Y
+2026-27-006,641941,Emilio Pagan,Tigers,major_league,2026-11-10,"",1,11500000,Y
+2026-27-007,680802,Ryan Weiss,Padres,major_league,2026-11-10,2026-11-10,1,1850000,Y
+2026-27-008,671289,Tyler Freeman,Braves,minor_league,2026-11-12,"","","",Y

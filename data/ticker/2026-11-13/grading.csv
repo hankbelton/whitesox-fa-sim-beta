@@ -1,0 +1,10 @@
+signing_live_id,mlbam_id,player,club,deal_type,date_reported,date_official,years,aav_nominal,terms_status,in_class,graded,grade_note,model_years,model_aav,model_total,err_log_aav,err_log_total,fcst_aav
+2026-27-001,657097,Jacob Webb,Cubs,major_league,2026-11-02,,1,2500000,public,Y,N,"not graded: signed Nov 2, before the Nov 3 re-lock was published",1,3563000,3563000,,,
+2026-27-002,621097,Jacob Waguespack,Tigers,major_league,,2026-11-02,,,not_public,N,N,not in the 2026-27 class (not on the free-agent list); no prediction; terms not public,,,,,,
+2026-27-003,686551,Christian Cairo,Mets,major_league_split,2026-11-02,,1,,not_public,N,N,not in the 2026-27 class (not on the free-agent list); no prediction; terms not public,,,,,,
+2026-27-004,476594,Robert Stock,Mets,major_league_split,2026-11-07,,1,,not_public,N,N,not in the 2026-27 class (not in the Nov 3 lock); no prediction; terms not public,,,,,,
+2026-27-005,623465,Evan Phillips,Braves,major_league,2026-11-12,,3,11666667,public,Y,Y,graded against the Nov 3 lock,1,4052000,4052000,1.0575252150063,2.15613747510298,12000000
+2026-27-006,641941,Emilio Pagan,Tigers,major_league,2026-11-10,,1,11500000,public,Y,Y,graded against the Nov 3 lock,1,6038000,6038000,0.644274204084557,0.644274204084557,10000000
+2026-27-007,680802,Ryan Weiss,Padres,major_league,2026-11-10,2026-11-10,1,1850000,public,Y,Y,"graded against the Nov 3 lock; his guarantee ($1.85M) may be understated: the buyout on his 2028 club option ($4.0M) is not reported, so it is not counted",1,843000,843000,0.785973960070515,0.785973960070515,
+2026-27-008,671289,Tyler Freeman,Braves,minor_league,2026-11-12,,,,not_public,Y,N,minor league deal; not graded,1,1479000,1479000,,,
+2026-27-009,641343,Jake Bauers,Red Sox,major_league,2026-11-13,,4,14500000,public,Y,Y,"graded against the Nov 3 lock on the QO-attached row (he rejected the Brewers' qualifying offer); reported, not yet official",3,14996000,44988000,-0.0336348494471369,0.254047223004644,23150000
