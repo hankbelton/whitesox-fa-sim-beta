@@ -2067,7 +2067,7 @@
   },
   "files": {
     "app.R": {
-      "checksum": "b44db9922ad5ad7ca4b24d62eaaf2d01"
+      "checksum": "ac891cf2f4252612506fd291f0d2b13d"
     },
     "data/acc_arbitration.csv": {
       "checksum": "c5ef919308543cd0b66c2813c82bb23f"
@@ -2122,6 +2122,24 @@
     },
     "data/needs_inputs.csv": {
       "checksum": "b58cd239cc6077c9dbef75bd7364262b"
+    },
+    "data/opt_budget.csv": {
+      "checksum": "8de00ab1c039b1c21a8b758ae4d1ae93"
+    },
+    "data/opt_freq.csv": {
+      "checksum": "53789771071f0c27a696a5b8cb8c520a"
+    },
+    "data/opt_freq_setting.csv": {
+      "checksum": "555e860d521ac4e7af13d2028f86c33b"
+    },
+    "data/opt_rosters.csv": {
+      "checksum": "a6899d2c951e348ddb2ecd432cdb2437"
+    },
+    "data/opt_settings.csv": {
+      "checksum": "61e7bd3b0f3a71e5689db626907e1c24"
+    },
+    "data/opt_wins.csv": {
+      "checksum": "f5ccbe86742a1cc1ab92afad9547b19a"
     },
     "data/payroll_ledger.csv": {
       "checksum": "0b2c574dd3a4fc370a91c59fffdb06f6"
@@ -2265,7 +2283,7 @@
       "checksum": "6d3c9dcc628f582fe6c1a03a608c9bb8"
     },
     "README.md": {
-      "checksum": "1621572a84a140e95c10ec73807453aa"
+      "checksum": "6e3dfe02cf34378e557e56556b3a1be9"
     }
   },
   "users": null

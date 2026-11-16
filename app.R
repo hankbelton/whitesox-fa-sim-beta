@@ -223,6 +223,10 @@ preds[, group := alt_group_of(position)]
 import_ids <- preds[grepl("^[Ii]mports", price_source), unique(mlbam_id)]
 TOP50 <- if ("top50" %in% names(preds)) preds[top50 %in% TRUE, unique(mlbam_id)] else if ("fcst_top50" %in% names(preds)) preds[fcst_top50 %in% TRUE, unique(mlbam_id)] else integer()
 OFF_IDS <- setdiff(preds[!(default_view %in% TRUE), unique(mlbam_id)], SIGNED_IDS)
+OPT_RD <- function(x) { z <- rd(x); if (!is.null(z) && "cap" %in% names(z)) z[, cap := as.character(cap)]; z }
+OPT_RO <- OPT_RD("data/opt_rosters.csv"); OPT_ST <- OPT_RD("data/opt_settings.csv")
+OPT_WN <- OPT_RD("data/opt_wins.csv"); OPT_FQ <- OPT_RD("data/opt_freq.csv")
+OPT_FS <- OPT_RD("data/opt_freq_setting.csv"); OPT_BC <- OPT_RD("data/opt_budget.csv")
 COUNT_IDS <- setdiff(preds[default_view %in% TRUE & !(option_pending %in% TRUE) & !is.na(model_aav), unique(mlbam_id)], SIGNED_IDS)
 plat <- if (file.exists(rp("data/platoon.csv"))) rd("data/platoon.csv") else rd("data/none")
 preds[, qo_short := vapply(seq_len(.N), function(i) { s <- qo_now(preds[i]); if (grepl("^received", s)) if (grepl("due Nov 17", s)) paste("QO made:", sub("^QO ", "", QO_DUE)) else "QO made" else if (grepl("not among", s)) "no QO" else sub(" \\(.*|;.*", "", s) }, "")]
@@ -292,7 +296,7 @@ how_to_read <- card(card_header("How to read this"),
   p(class = "small", "Each bar moves the price from where the market is to the most the Sox should pay. Green bars raise it, red bars lower it, grey bars are not built yet (0)."),
   tags$dl(class = "small mb-0",
     tags$dt("Market price"), tags$dd("What the market is expected to pay him a year at this length (my model, for every player)."),
-    tags$dt("My projection of his WAR vs the price"), tags$dd("How much more or less a year he is worth, over the contract's seasons from 2027, once my WAR paths for him (my engine on Steamer 2027: aging, playing time and injury) replace a player worth exactly the market price each season. Valued at the market price per win."),
+    tags$dt("Value above his price, per year"), tags$dd("What my projection of his production is worth at the market rate, minus his price, per season of the deal."),
     tags$dt("Your conviction"), tags$dd("The change from your own WAR adjustment in the sidebar (0 if you leave it at 0)."),
     tags$dt("Revenue multiplier"), tags$dd("The change from valuing his wins above or below a typical player's (a star draw, say); 0 at a multiplier of 1."),
     tags$dt("Risk"), tags$dd("What your risk appetite does: protecting the downside lowers the price, chasing upside raises it."),
@@ -451,6 +455,20 @@ ui <- function(request) page_sidebar(
         actionButton("copy_link", "Copy link to my offseason", class = "btn-outline-primary"),
         downloadButton("dl_off", "Download my offseason (CSV)"), downloadButton("dl_png", "Summary card (PNG)")),
         p(class = "small text-muted mt-2", "The link stores every setting and every move in the address itself (nothing is saved on a server); opening it restores this offseason. The download holds the summary above and the move log."))),
+    nav_panel("Best possible offseason", BETA,
+      card(card_header("Best possible offseason"),
+        p("This is the best roster my model can find if every free agent would sign with the Sox at the price shown, with no competition from other clubs, so it is an upper bound, not a plan."),
+        layout_columns(col_widths = c(4, 4, 4),
+          selectInput("opt_posture", "Later winters", c("Holding" = "holding", "Going for it" = "going", "Not going for it" = "not")),
+          radioButtons("opt_price", "Price level", c("At the market price" = "market", "10% above" = "+10%", "25% above" = "+25%")),
+          radioButtons("opt_cap", "Cap on signings", c("None" = "none", "At most 6" = "6"))),
+        DTo("opt_roster"), uiOutput("opt_summary"),
+        div(actionButton("opt_log", "Log this roster in the Move log", class = "btn-outline-primary")),
+        p(class = "small text-muted mt-2", "How it was found: a mixed-integer program chooses free agents (unsigned, on the Board) and places them in the Sox' lineup and rotation (one per position, two corner outfielders, five starters, eight relievers; hitters share a position's playing time), alongside the current players. It maximizes the value of the added wins over each contract (the same value of a win as the rest of this app) minus the contracts' cost, the spending-limit penalty and any draft pick, keeping payroll under the spending limit every season. It was solved for five runs of my engine; \"Picked in\" counts the runs that chose him.")),
+      card(card_header("Positions, 2027"), uiOutput("opt_pos")),
+      card(card_header("How often each player is picked"), p(class = "small text-muted", "Across all 90 runs (3 postures x 3 price levels x 2 caps x 5 engine runs). A player chosen in fewer than 3 of a setting's 5 runs is marked unstable there: his place depends on the run, not only on the setting."), DTo("opt_freq")),
+      card(card_header("Budget curve: wins added for each extra $10M"), p(class = "small text-muted", "The same program with a hard budget for new contracts (2027 AAV above current payroll, every season) in $10M steps, for the posture and price level above, no cap."),
+        plotOutput("opt_budget_plot", height = "300px"), DTo("opt_budget_tbl"))),
     nav_panel("How it works", BETA,
       card(card_header("Same projection, different risk"),
            p("Two players can have the same projection and still carry very different risk. My error model sets the width of each player's range from his track record, age, health and how much the projection systems disagree, so a steadier record means a narrower range and less chance of a lost season."),
@@ -971,7 +989,7 @@ server <- function(input, output, session) {
     w[, fillk := fcase(kind %in% c("start", "end"), "level", kind %in% c("placeholder", "noqo", "nofloor"), "placeholder", contribution >= 0, "up", default = "down")]
     w[, lab := fcase(kind == "placeholder", "0*", kind == "noqo", "0 (no QO)", kind == "nofloor", "0 (under\nthe limit)", default = lab)]
 
-    short <- c("Market\nprice", sprintf("My WAR\nprojection vs\nprice, 2027-%s", substr(2026L + as.integer(input$years), 3, 4)), "Your\nconviction", "Revenue\nmultiplier", "Risk", "Contract\nstructure", "What a win\nis worth\nto the Sox", "Fit:\npark*", "Fit:\nneeds", "Spending\nlimit", "Draft pick\n(QO)", "Most the\nSox should\npay")
+    short <- c("Market\nprice", "Value above\nhis price,\nper year", "Your\nconviction", "Revenue\nmultiplier", "Risk", "Contract\nstructure", "What a win\nis worth\nto the Sox", "Fit:\npark*", "Fit:\nneeds", "Spending\nlimit", "Draft pick\n(QO)", "Most the\nSox should\npay")
     ggplot(w, aes(xmin = i - 0.4, xmax = i + 0.4, ymin = start / 1e6, ymax = end / 1e6, fill = fillk)) + geom_rect() +
       geom_text(aes(x = i, y = pmax(start, end) / 1e6, label = lab), vjust = -0.4, size = 4.2) +
       scale_fill_manual(values = c(level = "#2b6cb0", up = "#2f855a", down = "#c53030", placeholder = "#cbd5e0"), guide = "none") +
@@ -1057,10 +1075,53 @@ server <- function(input, output, session) {
       p(strong("Value vs cost of the signings: "), if (v$signings) sprintf("value to the Sox %s against a cost of %s (present value, 2027 dollars, as each was logged): %s.", M(v$value), M(v$cost), M(v$value - v$cost)) else "no signings yet."),
       p(strong("Remaining holes: "), paste0(if (nrow(S$holes)) paste(sprintf("%s (%.1f WAR, %+.1f vs the 2026 league average per club)", S$holes$group, S$holes$war_after, S$holes$vs_lg), collapse = "; ") else "none", "."))) })
 
+  opt_s <- reactive(list(ps = if (is.null(input$opt_posture)) "holding" else input$opt_posture, pr = if (is.null(input$opt_price)) "market" else input$opt_price,
+                         cp = if (is.null(input$opt_cap)) "none" else input$opt_cap))
+  opt_ro <- reactive({ s <- opt_s(); if (is.null(OPT_RO)) return(NULL); OPT_RO[posture == s$ps & price == s$pr & cap == s$cp] })
+  opt_st <- reactive({ s <- opt_s(); if (is.null(OPT_ST)) return(NULL); OPT_ST[posture == s$ps & price == s$pr & cap == s$cp] })
+  opt_wn <- reactive({ s <- opt_s(); if (is.null(OPT_WN)) return(NULL); OPT_WN[posture == s$ps & price == s$pr & cap == s$cp][order(season)] })
+  output$opt_roster <- renderDT({ r <- opt_ro(); if (is.null(r) || !nrow(r)) return(datatable(data.table(Note = "No signing adds value at these prices."), rownames = FALSE, options = list(dom = "t")))
+    datatable(r[, .(Player = player, Pos = position, Years = years, `AAV ($M)` = round(aav / 1e6, 2), `Value above his price, per year ($M)` = round(value_above / 1e6, 2),
+                    `Picked in (of 5 runs)` = runs_of_5, Stable = fifelse(unstable %in% TRUE, "unstable (fewer than 3 of 5)", "yes"))], rownames = FALSE, options = list(dom = "t", pageLength = 30)) })
+  output$opt_summary <- renderUI({ st <- opt_st(); w <- opt_wn(); if (is.null(st) || !nrow(st) || is.null(w) || !nrow(w)) return(p("Not available in this build."))
+    tagList(
+      p(strong("Payroll, 2027: "), sprintf("%s after these signings against a spending limit of %s (%d signing%s, %s committed in all; cost %s and value to the Sox %s, present value).",
+        M(st$payroll_2027), M(st$limit_2027), st$n, if (st$n == 1) "" else "s", M(st$committed), M(st$cost_pv), M(st$value + st$cost_pv))),
+      p(strong("Sox wins: "), sprintf("2027 %.1f (80%% range %.0f-%.0f) before, %.1f (%.0f-%.0f) after.", w$before[1], w$before_lo[1], w$before_hi[1], w$after[1], w$after_lo[1], w$after_hi[1]),
+        span(class = "small", sprintf(" 2028-2031 after: %s (change %s).", paste(sprintf("%.1f", w$after[-1]), collapse = " / "), paste(sprintf("%+.1f", w$after[-1] - w$before[-1]), collapse = " / ")))),
+      p(class = "small text-muted", "Wins are my engine's: each signing adds his projected WAR less the playing time he takes from the Sox' current players. The range is how far teams with a projection like this one finished from it (80% of 180 team-seasons, 2021-2026).")) })
+  output$opt_pos <- renderUI({ r <- opt_ro(); if (is.null(fit_pool0)) return(NULL)
+    pb <- pos_starters(fit_pool_fill(fit_pool0)); mv <- if (!is.null(r) && nrow(r)) mv_rows(r[, .(mlbam_id, player, years)]) else NULL
+    pn <- pos_starters(fit_pool_fill(fit_add_moves(fit_pool0, mv))); if (is.null(pb) || is.null(pn)) return(NULL)
+    q <- merge(pb[, .(group, who_before = who, war_before = war)], pn[, .(group, who_after = who, war_after = war)], by = "group", sort = FALSE)[, change := war_after - war_before]
+    tr <- function(...) tags$tr(lapply(list(...), function(z) tags$td(z)))
+    tags$table(class = "table table-sm small mb-1", tags$thead(tags$tr(lapply(c("Position", "Before: starters (2027 WAR)", "After", "Change"), tags$th))),
+      tags$tbody(lapply(seq_len(nrow(q)), function(i) tr(q$group[i], sprintf("%s (%.1f)", q$who_before[i], q$war_before[i]),
+        if (q$who_after[i] == q$who_before[i]) sprintf("same (%.1f)", q$war_after[i]) else sprintf("%s (%.1f)", q$who_after[i], q$war_after[i]), if (abs(q$change[i]) < 0.05) "" else sprintf("%+.1f", q$change[i]))))) })
+  output$opt_freq <- renderDT({ if (is.null(OPT_FQ)) return(NULL); s <- opt_s(); fs <- if (is.null(OPT_FS)) NULL else OPT_FS[posture == s$ps & price == s$pr & cap == s$cp]
+    x <- copy(OPT_FQ)[order(-runs)]; x[, here := if (is.null(fs)) NA_integer_ else fs$runs_of_5[match(mlbam_id, fs$mlbam_id)]]
+    datatable(x[, .(Player = player, `Picked in (of 90 runs)` = runs, `Share` = sprintf("%.0f%%", 100 * share), `This setting (of 5)` = fifelse(is.na(here), 0L, as.integer(here)),
+                    `Settings where unstable` = sprintf("%d of %d", settings_unstable, settings_picked))], rownames = FALSE, options = list(dom = "tp", pageLength = 15)) })
+  output$opt_budget_plot <- renderPlot({ s <- opt_s(); if (is.null(OPT_BC)) return(NULL); b <- OPT_BC[posture == s$ps & price == s$pr][order(budget)]; if (!nrow(b)) return(NULL)
+    ggplot(b, aes(budget / 1e6)) + geom_line(aes(y = wins_added_2027, colour = "2027")) + geom_point(aes(y = wins_added_2027, colour = "2027")) +
+      geom_line(aes(y = mean_wins_added, colour = "2027-2031 average")) + geom_point(aes(y = mean_wins_added, colour = "2027-2031 average")) +
+      scale_colour_manual(NULL, values = c("2027" = "#27251F", "2027-2031 average" = "#C4CED4")) + labs(x = "Budget for new contracts, 2027 ($M a year above current payroll)", y = "Wins added") +
+      theme_minimal(base_size = 12) + theme(legend.position = "top") })
+  output$opt_budget_tbl <- renderDT({ s <- opt_s(); if (is.null(OPT_BC)) return(NULL); b <- OPT_BC[posture == s$ps & price == s$pr][order(budget)]
+    b[, `:=`(step_w = c(NA, diff(wins_added_2027)), step_v = c(NA, diff(value)))]
+    datatable(b[, .(`Budget ($M)` = budget / 1e6, Signings = n, `2027 AAV used ($M)` = round(aav_2027 / 1e6, 1), `Wins added, 2027` = wins_added_2027, `Wins added, 2027-31 avg` = mean_wins_added,
+                    `Extra wins for this $10M (2027)` = round(step_w, 2), `Value to the Sox ($M)` = round(value / 1e6, 1))], rownames = FALSE, options = list(dom = "t", pageLength = 20)) })
+  observeEvent(input$opt_log, { r <- opt_ro(); if (is.null(r) || !nrow(r)) return(); m0 <- moves(); added <- 0L
+    for (j in seq_len(nrow(r))) { if (r$mlbam_id[j] %in% moves()$mlbam_id) next; L <- as.integer(r$years[j]); A <- r$aav[j]; D <- sum(disc(L))
+      f <- list(id = r$mlbam_id[j], years = L, aav = A, conviction = input$conviction, risk = input$risk, castillo = input$castillo, cbt = input$cbt, wv = input$wv,
+                opt_kind = "none", opt_out = "0", defer = 0, bonus = 0, ge = A, ev = round((r$value_above[j] + A) * D), ec = round(A * D), time = format(Sys.time(), "%H:%M:%S"))
+      moves(rbind(moves(), move_row_sign(f), fill = TRUE)); added <- added + 1L }
+    showNotification(sprintf("Logged %d signing%s from the best possible offseason (see the Move log).", added, if (added == 1) "" else "s"), type = "message") })
+
   output$dl_off <- downloadHandler(function() paste0("my_offseason_", Sys.Date(), ".csv"), function(f) fwrite(off_table(off_sum(), moves()), f, bom = TRUE))
   output$dl_png <- downloadHandler(function() paste0("my_offseason_", Sys.Date(), ".png"), function(f) off_png(f, off_sum(), moves()), contentType = "image/png")
 
-  BM_EXCL_FIXED <- c("sign", "undo", "rm_release", "rm_trade", "copy_link", "rm_player")
+  BM_EXCL_FIXED <- c("sign", "undo", "rm_release", "rm_trade", "copy_link", "rm_player", "opt_log")
   bm_exclude <- function(nm) c(BM_EXCL_FIXED, grep("_(rows_selected|rows_current|rows_all|state|search|search_columns|cell_clicked|cells_selected|columns_selected|cell_info|cell_edit)$", nm, value = TRUE))
   bm_save <- function(state) { state$values$m <- bm_enc_moves(isolate(moves())); r <- bm_enc_rp(isolate(rp_map$m)); if (nzchar(r)) state$values$r <- r }
   bm_load <- function(state) { v <- state$values; restore_until(Sys.time() + 5); if (!is.null(v$m)) moves(bm_dec_moves(v$m)); if (!is.null(v$r)) rp_map$m <- bm_dec_rp(v$r) }

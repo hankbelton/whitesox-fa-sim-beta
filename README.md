@@ -5,6 +5,8 @@ market price, his projected WAR paths for 2027-2031, and what his wins are worth
 conviction, the risk appetite and the priorities, then log moves one at a time; every move re-values the Sox roster and the rest of the Board.
 The Move log tab sums up your offseason (payroll, wins, positions, value against cost, remaining holes). Its link stores every setting and
 move in the address itself (nothing is saved on a server), and you can download the summary and the move log.
+The Best possible offseason tab shows the best roster my model can find if every free agent would sign with the Sox at the price shown,
+with no competition from other clubs. It is an upper bound, not a plan; it was found offline by a mixed-integer program and is shown precomputed.
 
 **Beta. Numbers may change until the final release.**
 
