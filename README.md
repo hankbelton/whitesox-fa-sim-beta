@@ -3,6 +3,8 @@
 I built this as a front-office decision tool for the White Sox' 2026-27 offseason. My model supplies the distributions: each free agent's
 market price, his projected WAR paths for 2027-2031, and what his wins are worth to the Sox at their own win level. You supply the
 conviction, the risk appetite and the priorities, then log moves one at a time; every move re-values the Sox roster and the rest of the Board.
+The Move log tab sums up your offseason (payroll, wins, positions, value against cost, remaining holes). Its link stores every setting and
+move in the address itself (nothing is saved on a server), and you can download the summary and the move log.
 
 **Beta. Numbers may change until the final release.**
 
@@ -24,7 +26,8 @@ shiny::runApp(".")
 I'm grateful to the people and sites whose public work this rests on:
 
 - **Projections:** Steamer 2027 (FanGraphs) is the input to my WAR path engine. Only my engine's derived values are shown.
-- **Market prices:** my own price model for every player.
+- **Market prices:** my own price model for every player. It uses whether MLB Trade Rumors ranked the player among its top 50 free
+  agents (credited): on past winters my model ran low on ranked players' prices, so ranked players are raised and the rest lowered a little.
 - **Signings:** as reported by MLB Trade Rumors and the MLB transactions feed. For players who have signed, the market ticker shows MLB Trade
   Rumors' predicted AAV, credited.
 - **Payroll and roster:** MLB Stats API (rosters, options); contracts from public reports, with Cot's Baseball Contracts credited where it

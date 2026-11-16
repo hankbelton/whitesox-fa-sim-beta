@@ -2067,7 +2067,7 @@
   },
   "files": {
     "app.R": {
-      "checksum": "5da033a33a00fc6f0334eba32a2a2ed3"
+      "checksum": "b44db9922ad5ad7ca4b24d62eaaf2d01"
     },
     "data/acc_arbitration.csv": {
       "checksum": "c5ef919308543cd0b66c2813c82bb23f"
@@ -2115,10 +2115,10 @@
       "checksum": "19a04d928a855778b9c503d3bb966a87"
     },
     "data/market_bands.csv": {
-      "checksum": "a40b68fdbd7224ddfa9819eba39a3eae"
+      "checksum": "053148b0940957194cbe369fdf143f8c"
     },
     "data/near_line.csv": {
-      "checksum": "3b5bc1572c3ac1bd584513b4dc4a7be0"
+      "checksum": "803b97d1f86dd0f23c402f8ee032b756"
     },
     "data/needs_inputs.csv": {
       "checksum": "b58cd239cc6077c9dbef75bd7364262b"
@@ -2145,7 +2145,7 @@
       "checksum": "f4e25f5c2a5fe9b1d58252fa3f70519c"
     },
     "data/prices.csv": {
-      "checksum": "220e871f078143ee1f32a5742361eff1"
+      "checksum": "5014b78256910ea0cb693bec86d3868e"
     },
     "data/prospects_2027.csv": {
       "checksum": "c0854eb2164d6218f2e2c66d99364e27"
@@ -2265,7 +2265,7 @@
       "checksum": "6d3c9dcc628f582fe6c1a03a608c9bb8"
     },
     "README.md": {
-      "checksum": "83d0fee329c675d81c3ddda9a02e5176"
+      "checksum": "1621572a84a140e95c10ec73807453aa"
     }
   },
   "users": null
